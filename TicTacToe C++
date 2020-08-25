@@ -1,0 +1,227 @@
+#include<iostream> 
+#include<algorithm> 
+#include <math.h>
+#include <vector>
+#include <stack>  
+#include <time.h>
+
+using namespace std;
+
+const int ROWS = 3;
+const int COLS = 3;
+
+
+
+char** init_2d_array(int rows, int cols) {
+	char** ary = new char* [rows];
+	for (int i = 0; i < rows; ++i)
+		ary[i] = new char[cols];
+
+	return ary;
+}
+
+void fill_2d_array(char** array)
+{
+	for (int i = 0; i < ROWS; ++i)
+		for (int j = 0; j < COLS; ++j)
+			array[i][j] = ' ';
+}
+
+void print_2d_array(char** array) {
+
+	cout << "  ";
+	for (int j = 0; j < COLS; ++j)
+	{
+		cout << j << " ";
+	}
+	cout <<   endl;
+	cout << "  ";
+	for (int i = 0; i < COLS; i++)
+		cout << "__";
+	cout << endl;
+	for (int i = 0; i < ROWS; ++i){
+		cout << i << "|";
+
+
+		for (int j = 0; j < COLS; ++j){
+			std::cout << array[i][j]  << "|";
+		}
+		cout <<  endl;
+		if (i != ROWS - 1)
+		{
+			cout << "  ";
+			for (int i = 0; i < COLS; i++)
+				cout << "__";
+			cout << endl;
+		}
+	}
+	
+}
+
+bool is_out(char** array, int row, int col) {
+	if (ROWS - row - 1 >= 0 && COLS - col - 1 >= 0 && row >= 0 && col >= 0)
+	{ 
+		return true;
+			
+	}
+	else
+	{
+		cout << "Error, out of the field!!!!!!" << endl;
+		return false;
+	}
+		
+		
+}
+bool has_empty_space(char** array) {
+	for (int i = 0; i < ROWS; ++i)
+		for (int j = 0; j < COLS; ++j)
+			if (array[i][j] == ' ')
+			{
+				return true;
+			}
+	return false;
+
+}
+void write_2d_field(char** array , int row , int col , char _char) {
+	
+		if(array[row][col] == ' ')
+			array[row][col] = _char;
+		else
+		{
+			cout << "This possition is already taken" << endl;
+
+		}
+	
+	
+
+}
+void AI_write_2d_field(char** array) {
+	
+	int y = rand() % COLS;
+	int x = rand() % ROWS;
+	if (array[x][y] == ' ')
+	{
+		write_2d_field(array, x, y, 'O');
+	}
+	else if (has_empty_space(array))
+		AI_write_2d_field(array);
+
+}
+// win conditions are static just for grid 3x3
+// the first player with 3 symbols in a single row, column or diagonal wins
+bool is_winner(char** array, char _char) {
+	return (array[0][0] == _char && array[0][1] == _char && array[0][2] == _char) || 
+		(array[1][0] == _char && array[1][1] == _char && array[1][2] == _char) ||  
+		(array[2][0] == _char && array[2][1] == _char && array[2][2] == _char) ||
+		(array[0][0] == _char && array[1][0] == _char && array[2][0] == _char) ||
+		(array[0][1] == _char && array[1][1] == _char && array[2][1] == _char) ||
+		(array[0][2] == _char && array[1][2] == _char && array[2][2] == _char) ||
+		(array[0][0] == _char && array[1][1] == _char && array[2][2] == _char) || //diagonals
+		(array[2][0] == _char && array[1][1] == _char && array[0][2] == _char);
+
+}
+
+
+void play_a_game() {
+	char** board = init_2d_array(ROWS, COLS);
+	fill_2d_array(board);
+	cout << "Lets play TicTackToe against a random number generator opponent!" << endl;
+	bool run = true;
+	print_2d_array(board);
+	while (run)
+	{	
+		cout << "Where do you want me to put 'X' on to the field (type number of column first and then number of row)" << endl;
+		
+		int row , col ;
+		label:
+
+		cin >> col;
+		cin >> row;
+		while (std::cin.fail()) {
+			std::cout << "Error" << std::endl;
+			std::cin.clear();
+			std::cin.ignore(256, '\n');
+			std::cin >> col;
+			cin >> row;
+		}
+		if (is_out(board, row , col) && board[row][col] == ' '){
+			write_2d_field(board, row, col, 'X');
+		}
+		else
+		{
+			cout << "This possition is already taken" << endl;
+			goto label;
+		}
+
+		if (is_winner(board, 'X'))
+		{
+			print_2d_array(board);
+			cout << "YOU HAVE JUST WON THE GAME!!!" << endl;
+			run = false;
+			break;
+		}
+		
+		AI_write_2d_field(board);
+		if (is_winner(board, 'O'))
+		{
+			print_2d_array(board);
+			cout << "YOU HAVE JUST LOST THE GAME!!!" << endl;
+			run = false;
+			break;
+		}
+		print_2d_array(board);
+		cout << endl;
+		if (!has_empty_space(board))
+		{
+			run = false;
+		}
+		
+
+	}
+	cout << "Game over!!!" << endl;
+	
+
+
+
+}
+void play_again() {
+	bool run = true;
+	while (run)
+	{
+		play_a_game();
+
+		cout << "Do you want to play again? y/n" << endl;
+		char repeat;
+		cin >> repeat;
+		if (cin.fail())
+		{
+			cout << "Invalid input, not y/n, so I guess you dont want to play :-(" << endl;
+			run = false;
+			break;
+		}
+		if (repeat == 'y' || repeat == 'Y') {
+			cout << "Continuing" << endl;
+			continue;
+		}
+		else if (repeat == 'n' || repeat == 'N') {
+			cout << "Finishing" << endl;
+			run = false;
+			break;	
+		}
+		else
+		{
+			cout << "Invalid input, not y/n, so I guess you dont want to play :-(" << endl;
+			run = false;
+			break;
+		}
+	}
+
+
+}
+
+
+int main() {
+	
+	play_again();
+	return 0;
+}
